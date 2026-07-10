@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test_app/core/constants/app_constants.dart';
+import 'package:flutter_test_app/core/constants/global.dart';
 
 import 'splash_cubit.dart';
 
@@ -18,15 +19,30 @@ class _SplashState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    cubit.navigator.context = context;
-    Future.delayed(const Duration(seconds: 2), () {
-      cubit.checkUser();
+    // Wait until after the first frame so the navigator is ready.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final navContext = GlobalConstants.navigatorKey.currentContext;
+      if (navContext != null) {
+        cubit.navigator.context = navContext;
+      } else {
+        cubit.navigator.context = context;
+      }
+      Future<void>.delayed(const Duration(seconds: 2), () {
+        if (!mounted || cubit.isClosed) return;
+        cubit.checkUser();
+      });
     });
   }
 
   @override
   void dispose() {
-    cubit.close();
+    // Cubit is closed by the page that replaces splash, or explicitly when
+    // leaving. Avoid closing here if navigation already disposed this route
+    // mid-flight — checkUser guards with isClosed.
+    if (!cubit.isClosed) {
+      cubit.close();
+    }
     super.dispose();
   }
 

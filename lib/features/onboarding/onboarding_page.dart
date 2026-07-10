@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test_app/config/theme/app_text_styles.dart';
 import 'package:flutter_test_app/core/constants/app_constants.dart';
-import 'package:flutter_test_app/core/utils/app_images.dart';
 import 'package:flutter_test_app/core/utils/extensions.dart';
 import 'package:flutter_test_app/core/widgets/app_button.dart';
 
@@ -88,28 +86,28 @@ class _OnboardingState extends State<OnboardingPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   _featurePoint(
-                                    iconAsset: AppImages.onboardingFeature1,
+                                    icon: Icons.architecture_outlined,
                                     label: 'Clean Architecture',
                                     context: context,
                                   ),
                                   12.verticalSpace,
                                   _featurePoint(
-                                    iconAsset: AppImages.onboardingFeature2,
+                                    icon: Icons.account_tree_outlined,
                                     label: 'BLoC State Management',
                                     context: context,
                                   ),
                                   12.verticalSpace,
                                   _featurePoint(
-                                    iconAsset: AppImages.onboardingFeature3,
+                                    icon: Icons.navigation_outlined,
                                     label: 'Navigation & DI Ready',
                                     context: context,
                                   ),
                                   12.verticalSpace,
                                   _featurePoint(
-                                    iconAsset: AppImages.onboardingFeature4,
+                                    icon: Icons.palette_outlined,
                                     label: 'Theme & API Layer',
                                     context: context,
-                                  ),
+                                  )
                                 ],
                               ),
                             ),
@@ -149,7 +147,7 @@ class _OnboardingState extends State<OnboardingPage> {
 }
 
 Widget _featurePoint({
-  required String iconAsset,
+  required IconData icon,
   required String label,
   required BuildContext context,
 }) {
@@ -158,7 +156,7 @@ Widget _featurePoint({
     mainAxisSize: MainAxisSize.max,
     crossAxisAlignment: CrossAxisAlignment.center,
     children: [
-      SvgPicture.asset(iconAsset, width: 20.r, height: 20.r),
+      Icon(icon, size: 20.r, color: context.colorScheme.primary),
       14.horizontalSpace,
       Text(
         label,

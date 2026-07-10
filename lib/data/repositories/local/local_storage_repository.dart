@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fpdart/fpdart.dart';
 
@@ -10,14 +11,21 @@ import 'package:flutter_test_app/domain/failures/local/set_local_storage_failure
 import 'package:flutter_test_app/domain/repositories/local/local_storage_base_api_service.dart';
 
 class LocalStorageRepository implements LocalStorageBaseApiService {
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  LocalStorageRepository()
+    : _storage = const FlutterSecureStorage(
+        iOptions: IOSOptions(
+          accessibility: KeychainAccessibility.first_unlock,
+        ),
+      );
+
+  final FlutterSecureStorage _storage;
 
   @override
   Future<Either<SetLocalStorageFailure, bool>> setUserData({
     required UserInfoStoreModel userInfoStoreModel,
   }) async {
     try {
-      String userJson = jsonEncode(userInfoStoreModel.toJson());
+      final userJson = jsonEncode(userInfoStoreModel.toJson());
       await _storage.write(key: 'user_info', value: userJson);
       return right(true);
     } catch (ex) {
@@ -29,13 +37,14 @@ class LocalStorageRepository implements LocalStorageBaseApiService {
   Future<Either<GetLocalStorageFailure, UserInfoStoreModel>>
   getUserData() async {
     try {
-      String? userJson = await _storage.read(key: 'user_info');
+      final userJson = await _storage.read(key: 'user_info');
       if (userJson == null) {
-        return right(UserInfoStoreModel.empty().copyWith());
+        return right(UserInfoStoreModel.empty());
       }
-      Map<String, dynamic> userMap = jsonDecode(userJson);
+      final userMap = jsonDecode(userJson) as Map<String, dynamic>;
       return right(UserInfoStoreModel.fromJson(userMap));
     } catch (ex) {
+      debugPrint('getUserData failed: $ex');
       return left(GetLocalStorageFailure(error: ex.toString()));
     }
   }
@@ -55,12 +64,13 @@ class LocalStorageRepository implements LocalStorageBaseApiService {
     required String key,
   }) async {
     try {
-      String? value = await _storage.read(key: key);
+      final value = await _storage.read(key: key);
       if (value == null) {
         return right(false);
       }
       return right(value.toLowerCase() == 'true');
     } catch (ex) {
+      debugPrint('getBool($key) failed: $ex');
       return left(GetLocalStorageFailure(error: ex.toString()));
     }
   }
